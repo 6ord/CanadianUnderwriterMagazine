@@ -29,7 +29,8 @@ def CAUW_PRSS_Scrape(numPages):
 
     print('Canadian Underwriter Headlines Scrape Complete. CSV file writing in working path...')
 
-    dump = open('cdnUWScrape.csv','w',newline='')
+    dump = open('cdnUWScrape.csv','w',newline='',encoding='utf-8') #hardcode encoding. was getting encoding error.
+                                                                   #https://stackoverflow.com/questions/16346914/python-3-2-unicodeencodeerror-charmap-codec-cant-encode-character-u2013-i
     csvWriter = csv.writer(dump,delimiter=',',lineterminator='\n')
     for i in range(len(output)):
         csvWriter.writerow(output[i])        
