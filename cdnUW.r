@@ -18,7 +18,7 @@ headlines <- data.frame(Headline=as.character(headlines$Headline)
                         ,Year=headlines$Year
                         )
 
-#create generic cleanup job
+#create generic cleanup jobs
 
 sweepTxt <- function(x){
   x <-  tm_map(
@@ -61,7 +61,7 @@ comparison.cloud(tdm[,2:9], random.order=F
                  ,scale=c(4,0.5) #max,min font size
                  #,colors=rainbow(12)
                 )
-
+x11()
 wordcloud(sweepTxt(Corpus(VectorSource(docArray[[3]]))), random.order=F
                  ,max.words=200
                  ,min.freq=5
@@ -75,23 +75,12 @@ getTopWrdCount(docArray[[3]])
 
 #SENTIMENT
 
-#load pos/neg lexicon
+#load pos/neg lexicon, 2 ways same result
 
 posWords <- read.table("C:\\Users\\trunk\\Downloads\\BigData\\python\\positive-words.txt", stringsAsFactors = F)$V1
 negWords <- scan("C:\\Users\\trunk\\Downloads\\BigData\\python\\negative-words.txt",what='character')
 
 WrdBagList <- lapply(docArray,function(x){strsplit(paste(sweepTxtArray(x),collapse=' '),split=' ')[[1]]})
-
-# WB2009 <- strsplit(CH2009,split=' ')[[1]]
-# WB2010 <- strsplit(CH2010,split=' ')[[1]]
-# WB2011 <- strsplit(CH2011,split=' ')[[1]]
-# WB2012 <- strsplit(CH2012,split=' ')[[1]]
-# WB2013 <- strsplit(CH2013,split=' ')[[1]]
-# WB2014 <- strsplit(CH2014,split=' ')[[1]]
-# WB2015 <- strsplit(CH2015,split=' ')[[1]]
-# WB2016 <- strsplit(CH2016,split=' ')[[1]]
-# WB2017 <- strsplit(CH2017,split=' ')[[1]]
-# WB2018 <- strsplit(CH2018,split=' ')[[1]]
 
 sentDF <- data.frame(Yr=as.factor(2018:2009)
                      ,sentiment = sapply(WrdBagList,function(x){
