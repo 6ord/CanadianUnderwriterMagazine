@@ -2,7 +2,7 @@
 Text mining magazine headlines from this property and casualty insurance industry news outlet.
 
 cdnUWScrape.py
-- Contains a function called CAUW_PRSS_Scrape(numPages), which scrapes user specified numPages worth of Canadian Underwriter online insPRESS  articles' Headline, Data and Author. Date captured as List of Tuples, (over)written to 'cdnUWScrape.csv' in working path.
+- Contains a function called CAUW_PRSS_Scrape(numPages), which scrapes user specified numPages worth of Canadian Underwriter online insPRESS  articles' Headline, Date and Author. Data captured as List of Tuples, (over)written to 'cdnUWScrape.csv' in working path.
 - Also contains a function called CAUW_NEWS_Scrape(numPages) - IN PROGRESS - which scrapes Canadian Underwriter online News articles.
 - Uses the following Modules: re, requests, bs4, csv, datetime
 
