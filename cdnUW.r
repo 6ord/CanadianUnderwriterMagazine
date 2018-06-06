@@ -5,8 +5,8 @@ require('wordcloud')
 require('ggplot2')
 
 headlines <- read.csv("C:\\Users\\trunk\\Downloads\\BigData\\python\\cdnUWScrape.csv"
-                              ,stringsAsFactors = FALSE
-                      ,header = FALSE
+                       ,stringsAsFactors = FALSE
+                       ,header = FALSE
                      )
 names(headlines) <- c('Headline','Date','By')
 
@@ -18,7 +18,14 @@ headlines <- data.frame(Headline=as.character(headlines$Headline)
                         ,Year=headlines$Year
                         )
 
-#create generic cleanup jobs
+# Translate 'headlines' dataframe to character array 'docArray': Character Array with each element
+# containing all headlines for a given year. (One array element per year)
+# *CREDIT* https://stackoverflow.com/questions/28305685/get-column-from-list-of-dataframes-r
+docArray <- sapply(
+              sapply(split(headlines,headlines$Year),'[[',1)
+              ,as.character)
+
+#create generic cleanup jobs and top word count function or Deep Dive
 
 sweepTxt <- function(x){
   x <-  tm_map(
@@ -34,22 +41,20 @@ sweepTxt <- function(x){
                        ,' new ','canadian'))
       ,removeNumbers)
     ,stripWhitespace)
-}
+  }
 
 sweepTxtArray <-  function(x){content(sweepTxt(Corpus(VectorSource(x))))}
 
-getTopWrdCount <- function(x){head(sort(rowSums(as.matrix(TermDocumentMatrix(
+getTop10WrdCnt <- function(x){head(sort(rowSums(as.matrix(TermDocumentMatrix(
                                       sweepTxt(Corpus(VectorSource(x)))
                                           )))
-                                  ,decreasing = TRUE))
-}
+                                  ,decreasing = TRUE),10)
+  }
 
-#credit https://stackoverflow.com/questions/28305685/get-column-from-list-of-dataframes-r
-docArray <- sapply(
-              sapply(split(headlines,headlines$Year),'[[',1)
-              ,as.character)
-
+# Initiate Corpus
 myCorp <- Corpus(VectorSource(docArray))
+
+# COMPARISON CLOUD
 
 tdm <- as.matrix(TermDocumentMatrix(sweepTxt(myCorp)))
 colnames(tdm) <- c(2018:2009)
@@ -61,34 +66,52 @@ comparison.cloud(tdm[,2:9], random.order=F
                  ,scale=c(4,0.5) #max,min font size
                  #,colors=rainbow(12)
                 )
+# WORD CLOUD
+
 x11()
-wordcloud(sweepTxt(Corpus(VectorSource(docArray[[3]]))), random.order=F
+wordcloud(sweepTxt(Corpus(VectorSource(docArray[[1]]))), random.order=F
                  ,max.words=200
                  ,min.freq=5
                  ,scale=c(4,0.5) #max,min font size
                  ,colors=rainbow(5)
 )
 
-findAssocs(TermDocumentMatrix(sweepTxt(Corpus(VectorSource(docArray[[3]])))),'online',0.3)
+# Deep Dives
+findAssocs(TermDocumentMatrix(sweepTxt(Corpus(VectorSource(docArray[[2]])))),'payments',0.3)
+getTop10WrdCnt(docArray[[1]]) #user defined above
 
-getTopWrdCount(docArray[[3]])
+# SENTIMENT
 
-#SENTIMENT
+# load pos/neg Opinion Lexicon
 
-#load pos/neg lexicon, 2 ways same result
+   # Minqing Hu and Bing Liu. "Mining and Summarizing Customer Reviews." 
+   #     Proceedings of the ACM SIGKDD International Conference on Knowledge 
+   #     Discovery and Data Mining (KDD-2004), Aug 22-25, 2004, Seattle, 
+   #     Washington, USA, 
+   # Bing Liu, Minqing Hu and Junsheng Cheng. "Opinion Observer: Analyzing 
+   #     and Comparing Opinions on the Web." Proceedings of the 14th 
+   #     International World Wide Web conference (WWW-2005), May 10-14, 
+   #     2005, Chiba, Japan.
 
+# Two methods, same results
 posWords <- read.table("C:\\Users\\trunk\\Downloads\\BigData\\python\\positive-words.txt", stringsAsFactors = F)$V1
 negWords <- scan("C:\\Users\\trunk\\Downloads\\BigData\\python\\negative-words.txt",what='character')
 
-WrdBagList <- lapply(docArray,function(x){strsplit(paste(sweepTxtArray(x),collapse=' '),split=' ')[[1]]})
+# From array of annual headlines (docArray), create array of annual words from headlines (WrdBagList)
+WrdBagList <- lapply(docArray[2:9],function(x){strsplit(paste(sweepTxtArray(x),collapse=' '),split=' ')[[1]]})
 
-sentDF <- data.frame(Yr=as.factor(2018:2009)
+# create dataframe that tallies difference between pos/neg words per year
+sentDF <- data.frame(Yr=as.factor(2017:2010)
                      ,sentiment = sapply(WrdBagList,function(x){
                           sum(!is.na(match(x,posWords)))-sum(!is.na(match(x,negWords)))}
                           ))
+# Plot above dataframe
 x11()
-qplot(x=Yr,y=sentiment,data=sentDF)
-
+ggplot(data=sentDF,aes(x=Yr,y=sentiment,group=1))+
+        geom_line(color='blue')+geom_point()+
+        geom_hline(aes(yintercept=0))+
+        ggtitle('Canadian Underwriter insPRSS Headline Sentiments')
+            
 #################################  SAND #################################
 #################################   BOX #################################
 
