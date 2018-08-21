@@ -1,5 +1,5 @@
 # CanadianUnderwriterMagazine
-Text mining magazine headlines from this property and casualty insurance industry news outlet.
+Text mining magazine headlines from this property and casualty insurance industry news outlet. Article here: https://datacritics.com/2018/06/08/text-mining-cdnuw-headlines/
 
 cdnUWScrape.py
 - Contains a function called CAUW_PRSS_Scrape(numPages), which scrapes user specified numPages worth of Canadian Underwriter online insPRESS  articles' Headline, Date and Author. Data captured as List of Tuples, (over)written to 'cdnUWScrape.csv' in working path.
